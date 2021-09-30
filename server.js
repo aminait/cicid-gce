@@ -6,7 +6,7 @@ const PORT = 8080;
 // App
 const app = express();
 app.get('/', (req, res) => {
-    res.json('Hello CI/CD World');
+    res.json("Don't disappoint me CI/CD World");
 });
 
 app.get('/test', (req, res) => {
