@@ -80,7 +80,7 @@ jobs:
 
       - name: Update MIG
         run: |-
-          gcloud compute instance-groups managed rolling-action start-update $MIG_NAME --version=template=$TEMPLATE_NAME-$GITHUB_SHA [--zone=$MIG_ZONE ]
+          gcloud compute instance-groups managed rolling-action start-update $MIG_NAME --version=template=$TEMPLATE_NAME-$GITHUB_SHA --zone=$MIG_ZONE
 
       # Purge old images from GCR (not latest)
       - name: Purge GCR images
