@@ -13,9 +13,9 @@ app.get('/test', (req, res) => {
     res.json('Passed!');
 });
 
-app.get('/update', (req, res) => {
-    res.json('Am I ever going to see the light of a screen?');
-});
+// app.get('/update', (req, res) => {
+//     res.json('Am I ever going to see the light of a screen?');
+// });
 
 app.listen(PORT);
 console.log(`Running on ${PORT}`);
