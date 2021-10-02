@@ -76,11 +76,11 @@ jobs:
 
       - name: Create Instance template
         run: |-
-          gcloud compute instance-templates create-with-container $TEMPLATE_NAME:$GITHUB_SHA --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
+          gcloud compute instance-templates create-with-container $TEMPLATE_NAME-$GITHUB_SHA --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA" add-tags http-allow-8080
 
       - name: Update MIG
         run: |-
-          gcloud compute instance-groups managed rolling-action start-update $MIG_NAME --version=template=$TEMPLATE_NAME:$GITHUB_SHA [--zone=$MIG_ZONE ]
+          gcloud compute instance-groups managed rolling-action start-update $MIG_NAME --version=template=$TEMPLATE_NAME-$GITHUB_SHA [--zone=$MIG_ZONE ]
 
       # Purge old images from GCR (not latest)
       - name: Purge GCR images
