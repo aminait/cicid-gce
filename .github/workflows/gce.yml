@@ -61,12 +61,12 @@ jobs:
           docker push "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
 
       # Add pruning VM startup script
-      - name: Update startup script to prune and update IP address
-        run: |-
-          gcloud compute instances add-metadata "$GCE_INSTANCE" \
-            --zone "$GCE_INSTANCE_ZONE" \
-            --metadata=startup-script="#! /bin/bash
-              docker image prune -af"
+      # - name: Update startup script to prune and update IP address
+      #   run: |-
+      #     gcloud compute instances add-metadata "$GCE_INSTANCE" \
+      #       --zone "$GCE_INSTANCE_ZONE" \
+      #       --metadata=startup-script="#! /bin/bash
+      #         docker image prune -af"s
 
       # - name: Deploy
       #   run: |-
@@ -76,8 +76,11 @@ jobs:
 
       - name: Create Instance template
         run: |-
-          gcloud compute instance-templates create-with-container 
-          $TEMPLATE_NAME-$GITHUB_SHA --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA" --tags=http-server,https-server,http-allow-8080
+          gcloud compute instance-templates create-with-container \
+          $TEMPLATE_NAME-$GITHUB_SHA --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA" \
+           --tags=http-server,https-server,http-allow-8080 \
+           --metadata=startup-script="#! /bin/bash
+              docker image prune -af"s
 
       - name: Update MIG
         run: |-
