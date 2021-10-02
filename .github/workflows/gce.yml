@@ -26,7 +26,8 @@ env:
   GCE_INSTANCE: instance-no-container-1
   GCE_INSTANCE_ZONE: us-west4-b
   MIG_NAME: instance-group-no-container
-  TEMPLATE_NAME: instance-template-no-container-1
+  MIG_ZONE: us-central1-a
+  TEMPLATE_NAME: tmp
 
   # IMAGE_NAME: gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA
 
@@ -75,11 +76,11 @@ jobs:
 
       - name: Create Instance template
         run: |-
-          gcloud compute instance-templates create-with-container $TEMPLATE_NAME --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
+          gcloud compute instance-templates create-with-container $TEMPLATE_NAME:$GITHUB_SHA --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
 
       - name: Update MIG
         run: |-
-          gcloud compute instance-groups managed rolling-action start-update $MIG_NAME --version template=$TEMPLATE_NAME
+          gcloud compute instance-groups managed rolling-action start-update $MIG_NAME --version=template=$TEMPLATE_NAME:$GITHUB_SHA [--zone=$MIG_ZONE ]
 
       # Purge old images from GCR (not latest)
       - name: Purge GCR images
