@@ -16,10 +16,15 @@ name: Build and Deploy to Google Compute Engine
 
 on:
   # add merges/PR also
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
   push:
     branches:
       - main
       - staging
+  pull_request:
+    branches:
+      - main
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
