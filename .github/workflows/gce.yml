@@ -26,7 +26,7 @@ env:
   GCE_INSTANCE: instance-no-container-1
   GCE_INSTANCE_ZONE: us-central1-a
   MIG_NAME: instance-group-no-container
-  TEMPLATE_NAME: instance-template-no-container-1
+  TEMPLATE_NAME: instance-template-no-container
 
   # IMAGE_NAME: gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA
 
