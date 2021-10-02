@@ -24,9 +24,9 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
   GCE_INSTANCE: instance-no-container-1
-  GCE_INSTANCE_ZONE: us-central1-a
+  GCE_INSTANCE_ZONE: us-west4-b
   MIG_NAME: instance-group-no-container
-  TEMPLATE_NAME: instance-template-no-container
+  TEMPLATE_NAME: instance-template-no-container-1
 
   # IMAGE_NAME: gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA
 
@@ -62,7 +62,7 @@ jobs:
       # Add pruning VM startup script
       - name: Update startup script to prune and update IP address
         run: |-
-          gcloud compute instances add-metadata $GCE_INSTANCE \
+          gcloud compute instances add-metadata "$GCE_INSTANCE" \
             --zone "$GCE_INSTANCE_ZONE" \
             --metadata=startup-script="#! /bin/bash
               docker image prune -af"
