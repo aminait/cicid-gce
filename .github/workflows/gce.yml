@@ -28,7 +28,7 @@ env:
   MIG_NAME: instance-group-no-container
   TEMPLATE_NAME: instance-template-no-container-1
 
-  IMAGE_NAME: gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA
+  # IMAGE_NAME: gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA
 
 jobs:
   setup-build-publish-deploy:
@@ -53,11 +53,11 @@ jobs:
       # Build the Docker image
       - name: Build
         run: |-
-          docker build --tag $IMAGE_NAME .
+          docker build --tag "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA" .
       # Push the Docker image to Google Container Registry
       - name: Publish
         run: |-
-          docker push $IMAGE_NAME
+          docker push "gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
 
       # Add pruning VM startup script
       - name: Update startup script to prune and update IP address
@@ -75,7 +75,7 @@ jobs:
 
       - name: Create Instance template
         run: |-
-          gcloud compute instance-templates create-with-container $TEMPLATE_NAME --container-image=$IMAGE_NAME
+          gcloud compute instance-templates create-with-container $TEMPLATE_NAME --container-image="gcr.io/$PROJECT_ID/$GCE_INSTANCE-image:$GITHUB_SHA"
 
       - name: Update MIG
         run: |-
