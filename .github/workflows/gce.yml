@@ -1,0 +1,106 @@
+# Copyright 2020 Google, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Build and Deploy to Google Compute Engine
+
+on:
+  # add merges/PR also
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+  IMG_NAME: ${{ secrets.DOCKER_IMAGE_NAME }}
+  # IMG_NAME_ZONE: us-west4-b # maybe a secret?
+  IG_NAME: ${{ secrets.INSTANCE_GROUP_NAME }}
+  IG_ZONE: ${{ secrets.INSTANCE_GROUP_ZONE }}
+  TEMPLATE_NAME: tmp # placeholder
+  PORT: ${{ secrets.PORT }}
+
+  # IMAGE_NAME: gcr.io/$PROJECT_ID/$IMG_NAME-image:$GITHUB_SHA
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Setup gcloud CLI
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          version: "290.0.1"
+          service_account_key: ${{ secrets.GCE_SA_KEY }}
+          project_id: ${{ secrets.GCE_PROJECT }}
+
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - run: |-
+          gcloud --quiet auth configure-docker
+      # Build the Docker image
+      - name: Build
+        run: |-
+          docker build --tag "gcr.io/$PROJECT_ID/$IMG_NAME-image:${GITHUB_SHA::8}" .
+      # Push the Docker image to Google Container Registry
+      - name: Publish
+        run: |-
+          docker push "gcr.io/$PROJECT_ID/$IMG_NAME-image:${GITHUB_SHA::8}"
+
+      # Add pruning VM startup script
+      # - name: Update startup script to prune and update IP address
+      #   run: |-
+      #     gcloud compute instances add-metadata "$IMG_NAME" \
+      #       --zone "$IMG_NAME_ZONE" \
+      #       --metadata=startup-script="#! /bin/bash
+      #         docker image prune -af"s
+
+      # - name: Deploy
+      #   run: |-
+      #     gcloud compute instances update-container "$IMG_NAME" \
+      #       --zone "$IMG_NAME_ZONE" \
+      #       --container-image "gcr.io/$PROJECT_ID/$IMG_NAME-image:$GITHUB_SHA"
+
+      - name: Create Instance template
+        run: |-
+          gcloud compute instance-templates create-with-container \
+          $TEMPLATE_NAME-${GITHUB_SHA::8} --container-image="gcr.io/$PROJECT_ID/$IMG_NAME-image:${GITHUB_SHA::8}" \
+           --tags=http-server,https-server,http-allow-$PORT,https-allow-$PORT \
+           --metadata=startup-script="#! /bin/bash
+              docker image prune -af"s
+
+      - name: Update MIG
+        run: |-
+          gcloud compute instance-groups managed rolling-action start-update $IG_NAME --version=template=$TEMPLATE_NAME-${GITHUB_SHA::8} --zone=$IG_ZONE
+
+      # Purge old instance templates
+      # - name: Purge GCE Instance Templates
+      #   run: |-
+      #     cloud compute instance-templates delete INSTANCE-TEMPLATE
+
+      # Purge old images from GCR (not latest)
+      - name: Purge GCR images
+        run: |-
+          gcloud container images list-tags gcr.io/$PROJECT_ID/$IMG_NAME-image \
+            --format="get(digest)" --filter="NOT tags=${GITHUB_SHA::8}" | \
+            awk -v image_path="gcr.io/$PROJECT_ID/$IMG_NAME-image@" '{print image_path $1}' | \
+            xargs -r gcloud container images delete --force-delete-tags --quiet
