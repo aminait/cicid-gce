@@ -13,6 +13,11 @@ app.get('/test', (req, res) => {
     res.json('Passed!');
 });
 
+app.get('/please', (req, res) => {
+    res.json('Please...');
+});
+
+
 // app.get('/update', (req, res) => {
 //     res.json('Am I ever going to see the light of a screen?');
 // });
