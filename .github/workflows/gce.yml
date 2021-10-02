@@ -20,11 +20,11 @@ on:
   # but only for the main branch
   push:
     branches:
-      - main
-      - staging
+      - master
+      # - staging
   pull_request:
     branches:
-      - main
+      - master
 
 env:
   PROJECT_ID: ${{ secrets.GCE_PROJECT }}
