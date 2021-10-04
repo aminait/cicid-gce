@@ -20,7 +20,7 @@ on:
       - staging
 
 env:
-  PROJECT_ID: ${{ secrets.PROJECT_ID_ }}
+  PROJECT_ID: ${{ secrets.PROJECT_ID }}
   IMG_NAME: ${{ secrets.DOCKER_IMAGE_NAME }}
   IG_NAME: ${{ secrets.INSTANCE_GROUP_NAME }}
   IG_ZONE: ${{ secrets.INSTANCE_GROUP_ZONE }}
