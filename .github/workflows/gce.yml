@@ -50,16 +50,16 @@ jobs:
       # Build the Docker image
       - name: Build
         run: |-
-          docker build --tag "gcr.io/$PROJECT_ID/$IMG_NAME-image:${GITHUB_SHA::8}" .
+          docker build --tag "gcr.io/$PROJECT_ID/$IMG_NAME-image:$GITHUB_SHA" .
       # Push the Docker image to Google Container Registry
       - name: Publish
         run: |-
-          docker push "gcr.io/$PROJECT_ID/$IMG_NAME-image:${GITHUB_SHA::8}"
+          docker push "gcr.io/$PROJECT_ID/$IMG_NAME-image:$GITHUB_SHA"
 
       - name: Create Instance template
         run: |-
           gcloud compute instance-templates create-with-container \
-          $TEMPLATE_NAME-${GITHUB_SHA::8} --container-image="gcr.io/$PROJECT_ID/$IMG_NAME-image:${GITHUB_SHA::8}" \
+          $TEMPLATE_NAME-${GITHUB_SHA::8} --container-image="gcr.io/$PROJECT_ID/$IMG_NAME-image:$GITHUB_SHA" \
            --tags=http-server,https-server,http-allow-$PORT,https-allow-$PORT \
            --metadata=startup-script="#! /bin/bash
               docker image prune -af"s
@@ -77,6 +77,6 @@ jobs:
       - name: Purge GCR images
         run: |-
           gcloud container images list-tags gcr.io/$PROJECT_ID/$IMG_NAME-image \
-            --format="get(digest)" --filter="NOT tags=${GITHUB_SHA::8}" | \
+            --format="get(digest)" --filter="NOT tags=$$GITHUB_SHA" | \
             awk -v image_path="gcr.io/$PROJECT_ID/$IMG_NAME-image@" '{print image_path $1}' | \
             xargs -r gcloud container images delete --force-delete-tags --quiet
