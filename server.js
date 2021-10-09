@@ -17,9 +17,9 @@ app.get('/please', (req, res) => {
     res.json('Please...');
 });
 
-// app.get('/joke', (req, res) => {
-//     res.json("What do you call a gentleman-ly server? SIR-ver");
-// });
+app.get('/joke', (req, res) => {
+    res.json("What do you call a gentleman-ly server? SIR-ver");
+});
 
 app.listen(PORT);
 console.log(`Running on ${PORT}`);
