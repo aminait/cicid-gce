@@ -65,7 +65,7 @@ jobs:
            --tags=http-server,https-server,http-allow-$PORT,https-allow-$PORT \
            --metadata=startup-script="#! /bin/bash
               docker image prune -af"s
-           --metadata-from-file=ssh="$LOCAL_KEY_PATH"
+           --metadata-from-file=ssh="/home/amina/.ssh/id_rsa.pub"
 
         # To add ssh key from file
         #--metadata-from-file ssh-keys=<file>
