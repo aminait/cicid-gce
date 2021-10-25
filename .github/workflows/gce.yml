@@ -24,7 +24,8 @@ env:
   IMG_NAME: ${{ secrets.DOCKER_IMAGE_NAME }}
   IG_NAME: ${{ secrets.INSTANCE_GROUP_NAME }}
   IG_ZONE: ${{ secrets.INSTANCE_GROUP_ZONE }}
-  TEMPLATE_NAME: tmp
+  VM_INSTANCE_SSH_KEY: ${{ secrets.VM_INSTANCE_SSH_KEY }}
+  TEMPLATE_NAME: tmp1
   PORT: ${{ secrets.PORT }}
   LOCAL_KEY_PATH: ${{ secrets.LOCAL_KEY_PATH }}
 
